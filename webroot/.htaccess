@@ -1,0 +1,7 @@
+AddType image/avif .avif
+<IfModule mod_headers.c>
+  Header set Cache-Control "public, max-age=300"
+  <FilesMatch "^(card\.svg|music\.svg|blip\.json)$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+  </FilesMatch>
+</IfModule>

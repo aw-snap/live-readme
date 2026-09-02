@@ -1,0 +1,43 @@
+{
+ "languages": [
+  "Python",
+  "JavaScript",
+  "C++",
+  "C"
+ ],
+ "other": [
+  "Lua",
+  "GLSL",
+  "Java",
+  "Assembly"
+ ],
+ "dabbling": [
+  "TypeScript",
+  "Prolog",
+  "Lean",
+  "Nix"
+ ],
+ "system": {
+  "OS": "Arch Linux",
+  "Host": "conduit",
+  "WM": "Hyprland",
+  "Editor": "Neovim"
+ },
+ "hobbies": {
+  "Software": "3D engines, game jams, Arch ricing",
+  "Hardware": "rocketry, electronics, automation builds",
+  "Other": "bouldering, hiking, music"
+ },
+ "contact": {
+  "Email": "laketequin1@gmail.com",
+  "GitHub": "aw-snap",
+  "Discord": ".awsnap"
+ },
+ "stars": false,
+ "stars_lag": {
+  "card": 0.19,
+  "music": 0,
+  "blip": 0.29,
+  "btn": 0.32
+ }
+}

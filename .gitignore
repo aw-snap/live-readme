@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+panels/state.json
+panels/lastfm.json
+globe/*.bin
+globe/hours/
+globe/work/
+globe/venv/
+worker/node_modules/
+worker/.wrangler/
