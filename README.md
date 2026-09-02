@@ -2,9 +2,27 @@
 
 The code behind [github.com/aw-snap](https://github.com/aw-snap): a GitHub profile whose panels are rendered live by a home server and a Cloudflare Worker, not by GitHub.
 
-<p align="center"><img src="docs/profile.png" width="700" alt="the profile: globe, fastfetch card, now-playing panel, Blip the cat and three buttons"/></p>
+This is the profile itself, live, straight from the same servers. Every image is fetched fresh when this page loads, and the buttons work here too (they bounce you to the profile afterwards).
 
-Every image on that page is fetched fresh when the page loads.
+<p align="center">
+  <img src="http://ssh.awsnap.dev/globe/globe.avif" width="300" alt="a live-rendered globe, lit for New Zealand's current time of day — rendered on my own server, re-rendered hourly"/>
+</p>
+
+<p align="center">
+  <img src="http://ssh.awsnap.dev/globe/card.svg" width="820" alt="live fastfetch-style card: my setup, languages, hobbies and where to find me"/>
+</p>
+
+<p align="center">
+  <img src="http://ssh.awsnap.dev/globe/music.svg" width="820" alt="what I'm listening to right now, via Last.fm"/>
+</p>
+
+<p align="center">
+  <a href="https://awsnap.dev/globe/pet"><img src="https://awsnap.dev/globe/blip.svg" width="820" alt="Blip, my profile's cat — levels up with every cookie, pet and play from visitors. Click the cat to pet it."/></a>
+  <br/>
+  <a href="https://awsnap.dev/globe/treat"><img src="https://awsnap.dev/globe/btn-cookie.svg" width="260" alt="give Blip a cookie"/></a> <a href="https://awsnap.dev/globe/pet"><img src="https://awsnap.dev/globe/btn-pet.svg" width="260" alt="pet Blip"/></a> <a href="https://awsnap.dev/globe/play"><img src="https://awsnap.dev/globe/btn-play.svg" width="260" alt="play with Blip"/></a>
+</p>
+
+A static capture lives in [docs/profile.png](docs/profile.png) if you need one for a post.
 
 | panel | what it shows | rendered by |
 |---|---|---|
