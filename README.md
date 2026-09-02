@@ -41,7 +41,7 @@ GitHub proxies every README image through camo and forbids scripts, so two facts
 
 `build_earth.py` is a numpy renderer: gamma-correct Lambert shading of the day map, additive city lights, a soft twilight terminator, lit clouds, GGX sun glint on water, an atmosphere rim and a marker on New Zealand. The light direction is the real subsolar point for a chosen UTC hour. Frames are supersampled, motion-blurred and encoded as an animated AVIF in the same window chrome as the SVG panels. A full render takes about half an hour niced on the server, so it never renders on demand.
 
-`globe_ctl.py` keeps a set of hour slots rendered: hourly around NZ dawn and dusk, where the lighting changes fastest, and every two hours otherwise. Every tick it copies the nearest slot to `globe.avif`, and every few hours it re-renders the stalest one. The three textures are not in this repo; see [globe/TEXTURES.md](globe/TEXTURES.md).
+`globe_ctl.py` keeps a set of hour slots rendered: hourly around NZ dawn and dusk, where the lighting changes fastest, and every two hours otherwise. Every tick it copies the nearest slot to `globe.avif`, and every few hours it re-renders the stalest one. The three textures are included, with their sources and licences in [globe/TEXTURES.md](globe/TEXTURES.md).
 
 ### The card and the music panel
 
@@ -106,4 +106,4 @@ Then point your profile README at the images. [profile/README.md](profile/README
 
 ## Licence
 
-MIT. The earth textures are yours to source; see `globe/TEXTURES.md`.
+MIT for the code. The day and night maps are NASA imagery (public domain); the cloud map is Solar System Scope's, CC BY 4.0. See `globe/TEXTURES.md`.
