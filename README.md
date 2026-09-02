@@ -37,21 +37,27 @@ A static capture lives in [docs/profile.png](docs/profile.png) if you need one f
 
 ## How it works
 
-```mermaid
-flowchart LR
-  subgraph home["home server (Docker)"]
-    G["globe-service<br/>build_earth.py · globe_ctl.py"] -->|globe.avif| W["/srv/http/globe"]
-    P["panels-service<br/>panels_ctl.py · panels.py"] -->|"card.svg · music.svg · blip.json"| W
-    W --> A["Apache :80"]
-  end
-  subgraph cf["Cloudflare"]
-    K["Worker<br/>awsnap.dev/globe/*"] --- D[("Durable Object<br/>cookies · pets · plays")]
-  end
-  A -->|"blip.json (30 s cache)"| K
-  A --> C["GitHub camo proxy"]
-  K --> C
-  C --> R["README on github.com/aw-snap"]
-  R -->|"click: /treat /pet /play"| K
+```text
+             home server (Docker)                              Cloudflare
+  ┌────────────────────────────────────────┐     ┌───────────────────────────────────┐
+  │ globe-service                          │     │ Worker · awsnap.dev/globe/*       │
+  │   build_earth.py ──▶ globe.avif        │     │                                   │
+  │   globe_ctl.py      (one slot per hour)│     │   /treat /pet /play ──▶ Durable Object│
+  │                                        │     │   blip.svg · btn-*.svg ◀── counter│
+  │ panels-service                         │     │        ▲                          │
+  │   panels_ctl.py  ──▶ card.svg          │     │        │ blip.json (30 s cache)   │
+  │   panels.py          music.svg         │     │        │                          │
+  │                      blip.json ────────┼─────┼ ───────┘                          │
+  └────────────────────┬───────────────────┘     └─────────────────┬─────────────────┘
+                       │ /srv/http/globe                            │
+                       │ Apache :80                                 │
+                       ▼                                           ▼
+                   ┌────────────────────────────────────────────────────┐
+                   │                 GitHub camo proxy                  │
+                   └──────────────────────────┬─────────────────────────┘
+                                              ▼
+                                README on github.com/aw-snap
+                                click a button ──▶ Worker ──▶ 302 back to the profile
 ```
 
 GitHub proxies every README image through camo and forbids scripts, so two facts carry the whole design:
