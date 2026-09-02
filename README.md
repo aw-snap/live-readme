@@ -4,6 +4,8 @@ The code behind [github.com/aw-snap](https://github.com/aw-snap): a GitHub profi
 
 This is the profile itself, live, straight from the same servers. Every image is fetched fresh when this page loads, and the buttons work here too (they bounce you to the profile afterwards).
 
+<br/>
+
 <p align="center">
   <img src="http://ssh.awsnap.dev/globe/globe.avif" width="300" alt="a live-rendered globe, lit for New Zealand's current time of day — rendered on my own server, re-rendered hourly"/>
 </p>
@@ -21,6 +23,8 @@ This is the profile itself, live, straight from the same servers. Every image is
   <br/>
   <a href="https://awsnap.dev/globe/treat"><img src="https://awsnap.dev/globe/btn-cookie.svg" width="260" alt="give Blip a cookie"/></a> <a href="https://awsnap.dev/globe/pet"><img src="https://awsnap.dev/globe/btn-pet.svg" width="260" alt="pet Blip"/></a> <a href="https://awsnap.dev/globe/play"><img src="https://awsnap.dev/globe/btn-play.svg" width="260" alt="play with Blip"/></a>
 </p>
+
+<br/>
 
 A static capture lives in [docs/profile.png](docs/profile.png) if you need one for a post.
 
