@@ -38,26 +38,26 @@ A static capture lives in [docs/profile.png](docs/profile.png) if you need one f
 ## How it works
 
 ```text
-             home server (Docker)                              Cloudflare
-  ┌────────────────────────────────────────┐     ┌───────────────────────────────────┐
-  │ globe-service                          │     │ Worker · awsnap.dev/globe/*       │
-  │   build_earth.py ──▶ globe.avif        │     │                                   │
-  │   globe_ctl.py      (one slot per hour)│     │   /treat /pet /play ──▶ Durable Object│
-  │                                        │     │   blip.svg · btn-*.svg ◀── counter│
-  │ panels-service                         │     │        ▲                          │
-  │   panels_ctl.py  ──▶ card.svg          │     │        │ blip.json (30 s cache)   │
-  │   panels.py          music.svg         │     │        │                          │
-  │                      blip.json ────────┼─────┼ ───────┘                          │
-  └────────────────────┬───────────────────┘     └─────────────────┬─────────────────┘
-                       │ /srv/http/globe                            │
-                       │ Apache :80                                 │
-                       ▼                                           ▼
-                   ┌────────────────────────────────────────────────────┐
-                   │                 GitHub camo proxy                  │
-                   └──────────────────────────┬─────────────────────────┘
-                                              ▼
-                                README on github.com/aw-snap
-                                click a button ──▶ Worker ──▶ 302 back to the profile
+              home server (Docker)                                 Cloudflare
+  ┌──────────────────────────────────────────┐     ┌────────────────────────────────────────┐
+  │ globe-service                            │     │ Worker · awsnap.dev/globe/*            │
+  │   build_earth.py ──▶ globe.avif          │     │                                        │
+  │   globe_ctl.py       (one slot per hour) │     │   /treat /pet /play ──▶ Durable Object │
+  │                                          │     │   blip.svg · btn-*.svg ◀── counter     │
+  │ panels-service                           │     │        ▲                               │
+  │   panels_ctl.py  ──▶ card.svg            │     │        │ blip.json (30 s cache)        │
+  │   panels.py          music.svg           │     │        │                               │
+  │                      blip.json ───────── ┼─────┼────────┘                               │
+  └─────────────────────┬────────────────────┘     └────────────────────┬───────────────────┘
+                        │ /srv/http/globe                               │
+                        │ Apache :80                                    │
+                        ▼                                               ▼
+                    ┌────────────────────────────────────────────────────────┐
+                    │                   GitHub camo proxy                    │
+                    └────────────────────────────┬───────────────────────────┘
+                                                 ▼
+                                   README on github.com/aw-snap
+                                   click a button ──▶ Worker ──▶ 302 back to the profile
 ```
 
 GitHub proxies every README image through camo and forbids scripts, so two facts carry the whole design:
