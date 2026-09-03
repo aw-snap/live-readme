@@ -47,7 +47,7 @@ A static capture lives in [docs/profile.png](docs/profile.png) if you need one f
   │ panels-service                           │     │        ▲                               │
   │   panels_ctl.py  ──▶ card.svg            │     │        │ blip.json (30 s cache)        │
   │   panels.py          music.svg           │     │        │                               │
-  │                      blip.json ───────── ┼─────┼────────┘                               │
+  │                      blip.json ──────────┼─────┼────────┘                               │
   └─────────────────────┬────────────────────┘     └────────────────────┬───────────────────┘
                         │ /srv/http/globe                               │
                         │ Apache :80                                    │
