@@ -1,39 +1,37 @@
 # live-readme
 
-The code behind [github.com/aw-snap](https://github.com/aw-snap): a GitHub profile whose panels are rendered live by a home server and a Cloudflare Worker, not by GitHub.
+The code behind [github.com/aw-snap](https://github.com/aw-snap): a GitHub profile rendered live by my home server and a Cloudflare Worker.
 
-This is the profile itself, live, straight from the same servers. Every image is fetched fresh when this page loads, and the buttons work here too (they bounce you to the profile afterwards).
+This is the profile live, straight from the servers. Every image is fetched fresh each reload, and buttons work (they redirect you to the profile afterwards).
 
 <br/>
 
 <p align="center">
-  <img src="http://ssh.awsnap.dev/globe/globe.avif" width="300" alt="a live-rendered globe, lit for New Zealand's current time of day — rendered on my own server, re-rendered hourly"/>
+  <img src="http://ssh.awsnap.dev/globe/globe.avif" width="300" alt="a live-rendered globe, lit for NZ's current time of day — rendered hourly on my own server"/>
 </p>
 
 <p align="center">
-  <img src="http://ssh.awsnap.dev/globe/card.svg" width="820" alt="live fastfetch-style card: my setup, languages, hobbies and where to find me"/>
+  <img src="http://ssh.awsnap.dev/globe/card.svg" width="820" alt="live fastfetch-style card: my setup, languages, hobbies"/>
 </p>
 
 <p align="center">
-  <img src="http://ssh.awsnap.dev/globe/music.svg" width="820" alt="what I'm listening to right now, via Last.fm"/>
+  <img src="http://ssh.awsnap.dev/globe/music.svg" width="820" alt="what I'm listening to atm"/>
 </p>
 
 <p align="center">
-  <a href="https://awsnap.dev/globe/pet"><img src="https://awsnap.dev/globe/blip.svg" width="820" alt="Blip, my profile's cat — levels up with every cookie, pet and play from visitors. Click the cat to pet it."/></a>
+  <a href="https://awsnap.dev/globe/pet"><img src="https://awsnap.dev/globe/blip.svg" width="820" alt="Blip, my profile's cat with levels interaction from visitors. Click the cat to pet it :)"/></a>
   <br/>
   <a href="https://awsnap.dev/globe/treat"><img src="https://awsnap.dev/globe/btn-cookie.svg" width="260" alt="give Blip a cookie"/></a> <a href="https://awsnap.dev/globe/pet"><img src="https://awsnap.dev/globe/btn-pet.svg" width="260" alt="pet Blip"/></a> <a href="https://awsnap.dev/globe/play"><img src="https://awsnap.dev/globe/btn-play.svg" width="260" alt="play with Blip"/></a>
 </p>
 
 <br/>
 
-A static capture lives in [docs/profile.png](docs/profile.png) if you need one for a post.
-
 | panel | what it shows | rendered by |
 |---|---|---|
-| globe | a photoreal Earth lit for the real time of day, New Zealand marked, as an animated AVIF | `globe/`, one pre-rendered slot per hour |
-| fastfetch card | NZ time, server uptime, languages, hobbies and contact, all from one JSON file | `panels/`, every 10 s |
-| now-playing | the current or last Last.fm track with its album art | `panels/`, every 10 s |
-| Blip | a cat that levels up from visitors' cookies, pets and plays | `worker/` on Cloudflare, per request |
+| globe | Earth lit for the real time of day as an animated AVIF | `globe/`, one pre-rendered slot per hour |
+| fastfetch | time, server uptime, languages, hobbies and contact | `panels/`, every 10 s |
+| now-playing | the current or last music track with its album art | `panels/`, every 10 s |
+| Blip | a cat that levels up from visitor interactions | `worker/` on Cloudflare, per request |
 
 ## How it works
 
@@ -60,16 +58,16 @@ A static capture lives in [docs/profile.png](docs/profile.png) if you need one f
                                    click a button ──▶ Worker ──▶ 302 back to the profile
 ```
 
-GitHub proxies every README image through camo and forbids scripts, so two facts carry the whole design:
+GitHub proxies every README image through camo (GitHubs image proxy) and forbids scripts, so we have to work with the following:
 
-1. **camo honours `Cache-Control: no-store`.** The card, the music panel and Blip send it, so camo fetches the origin again on every page view. The globe is ~800 KB and is cached for five minutes instead.
+1. **camo honours `Cache-Control: no-store`.** The card, the music panel and Blip use it, so camo fetches the origin again on every page view. The globe is ~800 KB and is cached for five minutes instead.
 2. **An SVG inside `<img>` can't run JavaScript or load anything external, but SMIL animation works.** So everything is inlined. Text uses the viewer's monospace font, album art is a data URI, icons are paths, and every animation is declarative.
 
 ### The globe
 
-`build_earth.py` is a numpy renderer: gamma-correct Lambert shading of the day map, additive city lights, a soft twilight terminator, lit clouds, GGX sun glint on water, an atmosphere rim and a marker on New Zealand. The light direction is the real subsolar point for a chosen UTC hour. Frames are supersampled, motion-blurred and encoded as an animated AVIF in the same window chrome as the SVG panels. A full render takes about half an hour niced on the server, so it never renders on demand.
+`build_earth.py` is a numpy renderer: gamma-correct Lambert shading, additive city lights, a soft twilight terminator, lit clouds, GGX sun glint, an atmosphere rim and a marker on New Zealand. The light direction is the real lighting for a chosen UTC hour. Frames are supersampled, motion-blurred and encoded as an animated AVIF in the same window chrome as the SVG panels. A full render takes about half an hour staggered on the server, so instead it renders on demand.
 
-`globe_ctl.py` keeps a set of hour slots rendered: hourly around NZ dawn and dusk, where the lighting changes fastest, and every two hours otherwise. Every tick it copies the nearest slot to `globe.avif`, and every few hours it re-renders the stalest one. The three textures are included, with their sources and licences in [globe/TEXTURES.md](globe/TEXTURES.md).
+`globe_ctl.py` keeps a set of saved hour slots rendered: hourly cache around NZ dawn and dusk, where the lighting changes fastest, and every two hours otherwise. Every tick it copies the nearest slot to `globe.avif`, and every few hours it re-renders the stalest one. The three textures are included, with their sources and licences in [globe/TEXTURES.md](globe/TEXTURES.md).
 
 ### The card and the music panel
 
@@ -94,7 +92,7 @@ The Worker serves `blip.svg` and the three button images, and handles `/treat`, 
 
 The counter has never been reset and never will be: the Durable Object instance name and its migration are fixed.
 
-### Things that bit me
+### Things that were a little bit of a pain in the a##
 
 - Two SVG documents in the same page share nothing. A star that flies out of one panel and into the next has to be drawn in both, and each image starts its animation clock when it is first painted, so the join is only as good as the load-time skew. That experiment is still in the code behind `"stars": true` in `languages.json`, off by default.
 - `Header set Cache-Control no-store` has to be in the web root's `.htaccess` for exactly the live files. Cache the AVIF or camo will pull 800 KB per view.
@@ -103,7 +101,7 @@ The counter has never been reset and never will be: the Durable Object instance 
 
 ## Run your own
 
-You need a Linux box with Docker and a web server reachable on port 80, a Cloudflare zone for the Worker, a Last.fm API key, and a GitHub profile repo.
+You need a Linux box with Docker and a web server reachable on port 80, a Cloudflare zone for the Worker, a Last.fm API key (optional for live music), and a GitHub profile repo.
 
 ```bash
 # home server
