@@ -127,6 +127,11 @@ npx wrangler deploy
 | v3 | the cat, with a commit heartbeat and a single cookie button |
 | v4 | commits gone; levels come only from visitors' cookies, pets and plays |
 
+## Inspiration
+
+The fastfetch idea was inspired by Andrew Grant, check out his profile as well! 
+[https://github.com/Andrew6rant](https://github.com/Andrew6rant)
+
 ## Licence
 
 MIT for the code. The day and night maps are NASA imagery (public domain); the cloud map is Solar System Scope's, CC BY 4.0. See `globe/TEXTURES.md`.
