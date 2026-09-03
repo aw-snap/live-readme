@@ -35,28 +35,10 @@ This is the profile live, straight from the servers. Every image is fetched fres
 
 ## How it works
 
-```text
-              home server (Docker)                                 Cloudflare
-  ┌──────────────────────────────────────────┐     ┌────────────────────────────────────────┐
-  │ globe-service                            │     │ Worker · awsnap.dev/globe/*            │
-  │   build_earth.py ──▶ globe.avif          │     │                                        │
-  │   globe_ctl.py       (one slot per hour) │     │   /treat /pet /play ──▶ Durable Object │
-  │                                          │     │   blip.svg · btn-*.svg ◀── counter     │
-  │ panels-service                           │     │        ▲                               │
-  │   panels_ctl.py  ──▶ card.svg            │     │        │ blip.json (30 s cache)        │
-  │   panels.py          music.svg           │     │        │                               │
-  │                      blip.json ──────────┼─────┼────────┘                               │
-  └─────────────────────┬────────────────────┘     └────────────────────┬───────────────────┘
-                        │ /srv/http/globe                               │
-                        │ Apache :80                                    │
-                        ▼                                               ▼
-                    ┌────────────────────────────────────────────────────────┐
-                    │                   GitHub camo proxy                    │
-                    └────────────────────────────┬───────────────────────────┘
-                                                 ▼
-                                   README on github.com/aw-snap
-                                   click a button ──▶ Worker ──▶ 302 back to the profile
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
+  <img src="docs/architecture-light.png" alt="architecture: globe-service and panels-service in Docker write globe.avif, card.svg, music.svg and blip.json to Apache on port 80; a Cloudflare Worker reads blip.json and a Durable Object counter to serve blip.svg and the buttons; GitHub camo proxies all of it into the README, and a button click goes to the Worker and 302s back to the profile"/>
+</picture>
 
 GitHub proxies every README image through camo (GitHubs image proxy) and forbids scripts, so we have to work with the following:
 
