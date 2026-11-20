@@ -9,6 +9,8 @@
 // NOTE: the Durable Object instance name below ("cookies-v2") IS the counter. Never change it —
 // a new name starts a fresh instance at 0 and throws away everyone's clicks. Storage key "n" = cookies.
 
+import { UAParser } from "ua-parser-js";   // v1 (MIT); v2 is AGPL
+
 const KINDS = ["cookie", "pet", "play"];
 const nzDate = ms => new Date(ms).toLocaleDateString("en-CA", { timeZone: "Pacific/Auckland" });   // YYYY-MM-DD, Blip's home time
 const BORN = "2026-09-02";                                     // the day the counter (and Blip) went live
@@ -17,9 +19,10 @@ export class Counter {
   constructor(state) { this.state = state; }
   async fetch(request) {
     const u = new URL(request.url), st = this.state.storage, now = Date.now();
-    const m = await st.get(["n", "pets", "plays", "last", "lastAt", "days", "pending"]);
+    const m = await st.get(["n", "pets", "plays", "last", "lastAt", "days", "pending", "os"]);
     let n = m.get("n") || 0, pets = m.get("pets") || 0, plays = m.get("plays") || 0, last = m.get("last") || 0;
     let lastAt = m.get("lastAt") || {}, days = m.get("days") || {}, pending = m.get("pending") || null;
+    let os = m.get("os") || {};                                                          // clicks per visitor OS (logged, not shown)
     if (u.pathname === "/inc") {
       const kind = KINDS.includes(u.searchParams.get("kind")) ? u.searchParams.get("kind") : "cookie";
       if (kind === "cookie") n += 1; else if (kind === "pet") pets += 1; else plays += 1;
@@ -27,7 +30,8 @@ export class Counter {
       const day = nzDate(now); days = { ...days, [day]: (days[day] || 0) + 1 };
       for (const k of Object.keys(days).sort().slice(0, -60)) delete days[k];          // keep ~2 months of days
       pending = { kind, t: now, panel: false, btn: false };                              // the click nobody has been shown yet
-      await st.put({ n, pets, plays, last, lastAt, days, pending });
+      const o = (u.searchParams.get("os") || "unknown").slice(0, 32); os = { ...os, [o]: (os[o] || 0) + 1 };
+      await st.put({ n, pets, plays, last, lastAt, days, pending, os });
     }
     let fed = null;
     // "take": a render claims the pending click ONCE per image (panel, and the matching button),
@@ -38,7 +42,7 @@ export class Counter {
         fed = pending.kind; pending = { ...pending, [who]: true }; await st.put("pending", pending);
       }
     }
-    return Response.json({ n, pets, plays, last, lastAt, days, fed });
+    return Response.json({ n, pets, plays, last, lastAt, days, fed, os });
   }
 }
 
@@ -58,6 +62,12 @@ function isRealClick(req) {
   if (!ua) return false;
   if (/bot|crawl|spider|slurp|scan|preview|curl|wget|python|go-http|node-fetch|libwww|httpclient|monitor|uptime|headless|facebookexternalhit|slackbot|twitterbot|discordbot|telegrambot|whatsapp|linkedinbot|embedly|camo|github/.test(ua)) return false;
   return true;
+}
+
+// The clicker's OS: the Chromium client hint when sent, else parsed from the User-Agent.
+function clientOS(req) {
+  const hint = (req.headers.get("Sec-CH-UA-Platform") || "").replace(/"/g, "").trim();
+  return (hint || new UAParser(req.headers.get("User-Agent") || "").getOS().name || "unknown").slice(0, 32);
 }
 
 async function counter(stub, op) {
@@ -85,7 +95,11 @@ export default {
 
     const ACT = { "/globe/treat": "cookie", "/globe/click": "cookie", "/globe/pet": "pet", "/globe/play": "play" };
     if (ACT[p]) {
-      if (isRealClick(request)) await counter(stub, "inc?kind=" + ACT[p]);   // skip prefetch / scanners / bots
+      if (isRealClick(request)) {                                            // skip prefetch / scanners / bots
+        const os = clientOS(request);
+        console.log("click", ACT[p], os);                                     // live view: wrangler tail
+        await counter(stub, `inc?kind=${ACT[p]}&os=${encodeURIComponent(os)}`);
+      }
       return new Response(null, { status: 302, headers: { Location: PROFILE, "Cache-Control": NOCACHE } });
     }
     if (p === "/globe/blip.svg") {
@@ -97,7 +111,7 @@ export default {
     if (p === "/globe/cookie.svg") return svgResponse(cookieSVG((await counter(stub, "get")).n));
     if (p === "/globe/count") {
       const c = await counter(stub, "get");
-      return Response.json({ n: c.n || 0, pets: c.pets || 0, plays: c.plays || 0, last: c.last || 0 }, { headers: { "Cache-Control": NOCACHE } });
+      return Response.json({ n: c.n || 0, pets: c.pets || 0, plays: c.plays || 0, last: c.last || 0, os: c.os || {} }, { headers: { "Cache-Control": NOCACHE } });
     }
     return new Response("not found", { status: 404 });
   },
@@ -198,6 +212,7 @@ const crown = (x, y) => `<path d="M${x} ${y + 12} L${x} ${y} L${x + 6} ${y + 6} 
 const bow = (x, y) => `<path d="M${x} ${y} l-9 -6 v12 z M${x} ${y} l9 -6 v12 z" fill="${PINK}"/><circle cx="${x}" cy="${y}" r="2.4" fill="#ff9fb6"/>`;
 const sparkle = (x, y, d) => `<path d="M${x} ${y - 5} L${x + 1.5} ${y - 1.5} L${x + 5} ${y} L${x + 1.5} ${y + 1.5} L${x} ${y + 5} L${x - 1.5} ${y + 1.5} L${x - 5} ${y} L${x - 1.5} ${y - 1.5} Z" fill="#fff3b0"><animate attributeName="opacity" values="0.2;1;0.2" dur="1.8s" begin="${d}s" repeatCount="indefinite"/></path>`;
 function accessory(level) {
+  return "";   // cosmetic hats disabled for now — re-enable by deleting this line (thresholds below still apply)
   if (level >= 20) return crown(90, TB + 30) + sparkle(80, TB + 24, 0) + sparkle(122, TB + 30, 0.9);   // Lv.20: crown + sparkles
   if (level >= 10) return crown(90, TB + 30);                                                          // Lv.10: crown
   if (level >= 5) return bow(120, TB + 44);                                                            // Lv.5: bow on the ear
@@ -270,7 +285,7 @@ export function blipSVG(s, c) {
   // --- blipfetch rows (every mood < 25 chars) ---
   const WANT = { cookie: "wants a cookie", pet: "wants pats", play: "wants to play" };
   let mood, moodCol = TXT;
-  if (fed === "cookie") { mood = "nom nom · thanks :3"; moodCol = PUR; }
+  if (fed === "cookie") { mood = "nom nom · thanks :)"; moodCol = PUR; }
   else if (fed === "pet") { mood = "purring · ♥"; moodCol = PINK; }
   else if (fed === "play") { mood = "zoomies!!"; moodCol = BLUE; }
   else if (sleepy) mood = "zzz · asleep in NZ";

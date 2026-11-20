@@ -9,6 +9,7 @@
   "keywords": [],
   "type": "module",
   "dependencies": {
+    "ua-parser-js": "^1.0.41",
     "wrangler": "^4.128.0"
   },
   "private": true
